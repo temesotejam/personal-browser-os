@@ -390,11 +390,12 @@
     }
 
     function openExternal(url) {
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
+      const opened = window.open(url, "_blank");
       if (!opened) {
         showToast("新しいタブが開けませんでした。ブラウザーのポップアップ設定を確認してください。");
         return;
       }
+      opened.opener = null;
       showToast("Webサイトを別タブで開きました。");
     }
 
