@@ -17,12 +17,12 @@
   };
 
   const apps = [
-    { id: "home", name: "Overview", icon: "⌂", description: "Your personal desktop at a glance", width: 650, height: 460, desktop: true, dock: true },
-    { id: "calculator", name: "Calculator", icon: "∑", description: "A simple everyday calculator", width: 360, height: 465, desktop: true, dock: true },
-    { id: "notes", name: "Notes", icon: "▤", description: "A quiet place for your thoughts", width: 520, height: 440, desktop: true, dock: true },
-    { id: "viewer", name: "Image Viewer", icon: "▧", description: "Preview an image from your device", width: 600, height: 430, desktop: true, dock: true },
-    { id: "settings", name: "Settings", icon: "⚙", description: "Make this desktop feel like yours", width: 520, height: 470, desktop: true, dock: true },
-    { id: "app-center", name: "App Center", icon: "＋", description: "Add your own web apps", width: 570, height: 500, desktop: true, dock: false }
+    { id: "home", name: "ホーム", icon: "⌂", description: "あなた専用のデスクトップ概要", width: 650, height: 460, desktop: true, dock: true },
+    { id: "calculator", name: "電卓", icon: "∑", description: "日常使いのシンプルな電卓", width: 360, height: 465, desktop: true, dock: true },
+    { id: "notes", name: "メモ帳", icon: "▤", description: "思いついたことを書き留める場所", width: 520, height: 440, desktop: true, dock: true },
+    { id: "viewer", name: "画像ビューア", icon: "▧", description: "端末内の画像を表示", width: 600, height: 430, desktop: true, dock: true },
+    { id: "settings", name: "設定", icon: "⚙", description: "デスクトップの見た目を変更", width: 520, height: 470, desktop: true, dock: true },
+    { id: "app-center", name: "アプリ追加", icon: "＋", description: "お気に入りのWebアプリを登録", width: 570, height: 500, desktop: true, dock: false }
   ];
 
   const windows = new Map();
@@ -39,7 +39,7 @@
   }
   function writeStorage(key, value) {
     try { localStorage.setItem(key, JSON.stringify(value)); }
-    catch (_) { showToast("Browser storage is unavailable."); }
+    catch (_) { showToast("ブラウザーの保存機能を利用できません。"); }
   }
   function showToast(message) {
     const toast = $("#toast");
@@ -55,7 +55,7 @@
     return custom ? { ...custom, width: 820, height: 560, icon: custom.icon || "↗" } : null;
   }
   function allApps() {
-    return apps.concat(customApps.map((app) => ({ ...app, description: "Your custom web application" })));
+    return apps.concat(customApps.map((app) => ({ ...app, description: "追加したWebアプリ" })));
   }
 
   function renderDesktopIcons() {
@@ -92,8 +92,8 @@
     const launcher = document.createElement("button");
     launcher.className = "dock-button";
     launcher.type = "button";
-    launcher.title = "All applications";
-    launcher.setAttribute("aria-label", "All applications");
+    launcher.title = "すべてのアプリ";
+    launcher.setAttribute("aria-label", "すべてのアプリ");
     launcher.textContent = "▦";
     launcher.addEventListener("click", toggleLauncher);
     dock.append(launcher);
@@ -119,11 +119,11 @@
       });
       launcherGrid.append(button);
     });
-    $("#appCount").textContent = String(visible.length).padStart(2, "0") + " APPS";
+    $("#appCount").textContent = String(visible.length).padStart(2, "0") + " アプリ";
     if (!visible.length) {
       const empty = document.createElement("div");
       empty.className = "empty-state";
-      empty.textContent = "No apps found.";
+      empty.textContent = "アプリが見つかりません。";
       launcherGrid.append(empty);
     }
   }
@@ -182,7 +182,7 @@
     title.textContent = meta.name;
     const actions = document.createElement("div");
     actions.className = "window-actions";
-    actions.innerHTML = '<button class="window-action minimize" type="button" title="Minimize" aria-label="Minimize">−</button><button class="window-action maximize" type="button" title="Maximize" aria-label="Maximize">□</button><button class="window-action close" type="button" title="Close" aria-label="Close">×</button>';
+    actions.innerHTML = '<button class="window-action minimize" type="button" title="最小化" aria-label="最小化">−</button><button class="window-action maximize" type="button" title="最大化" aria-label="最大化">□</button><button class="window-action close" type="button" title="閉じる" aria-label="閉じる">×</button>';
     titlebar.append(appIcon, title, actions);
     const content = document.createElement("div");
     content.className = "window-content";
@@ -211,7 +211,7 @@
     titlebar.addEventListener("pointercancel", () => { dragState = null; });
     win.addEventListener("pointerdown", () => focusWindow(win));
     $(".minimize", actions).addEventListener("click", () => { win.style.display = "none"; updateDockState(); });
-    $(".maximize", actions).addEventListener("click", () => toggleMaximize(win));
+    $(".maximize", actions).addEventListener("click", () => toggle最大化(win));
     $(".close", actions).addEventListener("click", () => {
       win.remove();
       windows.delete(id);
@@ -223,7 +223,7 @@
     updateDockState();
   }
 
-  function toggleMaximize(win) {
+  function toggle最大化(win) {
     if (win.classList.contains("maximized")) {
       win.classList.remove("maximized");
       const old = win._restoreRect;
@@ -259,43 +259,43 @@
     }
 
     if (id === "home") {
-      content.innerHTML = '<div class="app-hero"><p class="eyebrow">WELCOME TO YOUR SPACE</p><h2>A desktop that is yours.</h2><p>This is a small, personal workspace running entirely in your browser. Open an app, arrange your windows, and make the space your own.</p></div><div class="app-cards"><article class="app-card"><span class="card-icon">▤</span><h3>Capture a thought</h3><p>Keep quick notes in your browser. Your text is saved automatically on this device.</p><button class="small-button" data-open="notes" style="margin-top:12px">Open Notes ↗</button></article><article class="app-card"><span class="card-icon">∑</span><h3>Work something out</h3><p>A lightweight calculator for everyday numbers and quick checks.</p><button class="small-button" data-open="calculator" style="margin-top:12px">Open Calculator ↗</button></article><article class="app-card"><span class="card-icon">▧</span><h3>Look at an image</h3><p>Preview an image from your computer without uploading it to a server.</p><button class="small-button" data-open="viewer" style="margin-top:12px">Open Viewer ↗</button></article><article class="app-card"><span class="card-icon">＋</span><h3>Make it yours</h3><p>Add a website or your own hosted web app to the launcher.</p><button class="small-button" data-open="app-center" style="margin-top:12px">Add an app ↗</button></article></div>';
+      content.innerHTML = '<div class="app-hero"><p class="eyebrow">あなたのデスクトップへようこそ</p><h2>自分だけのデスクトップ。</h2><p>これはブラウザーだけで動く、あなただけの作業空間です。アプリを起動し、ウィンドウを並べて、自分好みの環境に整えていきましょう。</p></div><div class="app-cards"><article class="app-card"><span class="card-icon">▤</span><h3>思いつきを書き留める</h3><p>ブラウザー内にメモを残せます。入力した内容は、この端末に自動保存されます。</p><button class="small-button" data-open="notes" style="margin-top:12px">メモ帳を開く ↗</button></article><article class="app-card"><span class="card-icon">∑</span><h3>計算する</h3><p>日常の計算やちょっとした確認に使えるシンプルな電卓です。</p><button class="small-button" data-open="calculator" style="margin-top:12px">電卓を開く ↗</button></article><article class="app-card"><span class="card-icon">▧</span><h3>画像を見る</h3><p>画像をサーバーに送信せず、この端末から読み込んで表示できます。</p><button class="small-button" data-open="viewer" style="margin-top:12px">画像ビューアを開く ↗</button></article><article class="app-card"><span class="card-icon">＋</span><h3>自分好みにカスタマイズ</h3><p>Webサイトや自作のWebアプリをランチャーに追加できます。</p><button class="small-button" data-open="app-center" style="margin-top:12px">アプリを追加 ↗</button></article></div>';
       wireOpenButtons(content);
       return;
     }
 
     if (id === "calculator") {
-      content.innerHTML = '<div class="calc"><div class="calc-display"><div class="calc-expression" id="calcExpression"></div><div class="calc-value" id="calcValue">0</div></div><div class="calc-grid"><button class="calc-key" data-key="clear">AC</button><button class="calc-key" data-key="back">⌫</button><button class="calc-key operator" data-key="%">%</button><button class="calc-key operator" data-key="/">÷</button><button class="calc-key" data-key="7">7</button><button class="calc-key" data-key="8">8</button><button class="calc-key" data-key="9">9</button><button class="calc-key operator" data-key="*">×</button><button class="calc-key" data-key="4">4</button><button class="calc-key" data-key="5">5</button><button class="calc-key" data-key="6">6</button><button class="calc-key operator" data-key="-">−</button><button class="calc-key" data-key="1">1</button><button class="calc-key" data-key="2">2</button><button class="calc-key" data-key="3">3</button><button class="calc-key operator" data-key="+">+</button><button class="calc-key wide" data-key="0">0</button><button class="calc-key" data-key=".">.</button><button class="calc-key equals" data-key="=">=</button></div></div>';
+      content.innerHTML = '<div class="calc"><div class="calc-display"><div class="calc-expression" id="calcExpression"></div><div class="calc-value" id="calcValue">0</div></div><div class="calc-grid"><button class="calc-key" data-key="clear">消去</button><button class="calc-key" data-key="back">⌫</button><button class="calc-key operator" data-key="%">%</button><button class="calc-key operator" data-key="/">÷</button><button class="calc-key" data-key="7">7</button><button class="calc-key" data-key="8">8</button><button class="calc-key" data-key="9">9</button><button class="calc-key operator" data-key="*">×</button><button class="calc-key" data-key="4">4</button><button class="calc-key" data-key="5">5</button><button class="calc-key" data-key="6">6</button><button class="calc-key operator" data-key="-">−</button><button class="calc-key" data-key="1">1</button><button class="calc-key" data-key="2">2</button><button class="calc-key" data-key="3">3</button><button class="calc-key operator" data-key="+">+</button><button class="calc-key wide" data-key="0">0</button><button class="calc-key" data-key=".">.</button><button class="calc-key equals" data-key="=">=</button></div></div>';
       setupCalculator(content);
       return;
     }
 
     if (id === "notes") {
-      content.innerHTML = '<div class="notes-layout"><div class="notes-toolbar"><span>PERSONAL NOTE</span><span id="notesStatus">SAVED LOCALLY</span></div><textarea class="notes-area" id="notesArea" placeholder="Start writing…"></textarea></div>';
+      content.innerHTML = '<div class="notes-layout"><div class="notes-toolbar"><span>個人メモ</span><span id="notesStatus">端末に保存済み</span></div><textarea class="notes-area" id="notesArea" placeholder="ここにメモを入力してください…"></textarea></div>';
       const area = $("#notesArea", content);
       area.value = readStorage(STORAGE.notes, "");
       area.addEventListener("input", () => {
         writeStorage(STORAGE.notes, area.value);
-        $("#notesStatus", content).textContent = "SAVED JUST NOW";
+        $("#notesStatus", content).textContent = "たった今保存";
       });
       return;
     }
 
     if (id === "viewer") {
       content.classList.add("no-padding");
-      content.innerHTML = '<div class="viewer-frame"><div class="viewer-drop" id="viewerDrop"><div style="font-size:34px">▧</div><strong style="font-size:12px">Drop an image here</strong><span style="font-size:10px">or choose a file from your device</span><label class="primary-button" for="imageFile">Choose image</label><input id="imageFile" type="file" accept="image/*" hidden></div></div>';
+      content.innerHTML = '<div class="viewer-frame"><div class="viewer-drop" id="viewerDrop"><div style="font-size:34px">▧</div><strong style="font-size:12px">ここに画像をドロップ</strong><span style="font-size:10px">または端末から画像を選択</span><label class="primary-button" for="imageFile">画像を選択</label><input id="imageFile" type="file" accept="image/*" hidden></div></div>';
       setupViewer(content);
       return;
     }
 
     if (id === "settings") {
-      content.innerHTML = '<div class="settings-section"><h3>Appearance</h3><p>Choose the look and atmosphere of your desktop.</p><div class="settings-row"><label><span class="field-label">Color theme</span><select class="select-field" id="themeSelect"><option value="dark">Midnight</option><option value="light">Daylight</option></select></label><label><span class="field-label">Wallpaper</span><select class="select-field" id="wallpaperSelect"><option value="aurora">Aurora</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="graphite">Graphite</option></select></label></div></div><div class="settings-section"><h3>Privacy</h3><p>Notes, preferences, and custom app shortcuts are stored in this browser using local storage. Images selected in Image Viewer are previewed locally and are not uploaded.</p></div><div class="settings-section"><h3>About this desktop</h3><p>Personal Browser OS · First release. A static web app designed for GitHub Pages.</p><button class="secondary-button" id="resetSettings">Reset appearance</button></div>';
+      content.innerHTML = '<div class="settings-section"><h3>外観</h3><p>デスクトップの配色や壁紙を変更できます。</p><div class="settings-row"><label><span class="field-label">テーマ</span><select class="select-field" id="themeSelect"><option value="dark">ダーク</option><option value="light">ライト</option></select></label><label><span class="field-label">壁紙</span><select class="select-field" id="wallpaperSelect"><option value="aurora">オーロラ</option><option value="sunset">夕焼け</option><option value="ocean">海</option><option value="graphite">グラファイト</option></select></label></div></div><div class="settings-section"><h3>プライバシー</h3><p>メモ、外観設定、追加したアプリの情報は、このブラウザー内に保存されます。画像ビューアで選択した画像は端末内で表示するだけで、サーバーには送信されません。</p></div><div class="settings-section"><h3>このデスクトップについて</h3><p>パーソナルブラウザーOS · 初期版。GitHub Pagesで動作するWebアプリです。</p><button class="secondary-button" id="resetSettings">外観を初期化</button></div>';
       setupSettings(content);
       return;
     }
 
     if (id === "app-center") {
-      content.innerHTML = '<div class="app-hero"><p class="eyebrow">MAKE IT YOURS</p><h2>Your apps, one desktop.</h2><p>Add a website or a web app you host yourself. It will appear in the launcher and open in its own window.</p></div><form class="custom-app-form" id="customAppForm"><label><span class="field-label">App name</span><input class="text-field" name="name" maxlength="28" placeholder="e.g. My dashboard" required></label><label><span class="field-label">Icon (emoji or symbol)</span><input class="text-field" name="icon" maxlength="4" placeholder="↗" value="↗"></label><label class="full"><span class="field-label">Web address (https://…)</span><input class="text-field" name="url" type="url" placeholder="https://example.com" required></label><div class="full"><button class="primary-button" type="submit">＋ Add to my desktop</button></div></form><div class="custom-app-list" id="customAppList"></div>';
+      content.innerHTML = '<div class="app-hero"><p class="eyebrow">自分好みにカスタマイズ</p><h2>お気に入りのアプリを一か所に。</h2><p>Webサイトや自分で公開したWebアプリを追加できます。追加したアプリはランチャーに表示され、専用のウィンドウで開きます。</p></div><form class="custom-app-form" id="customAppForm"><label><span class="field-label">アプリ名</span><input class="text-field" name="name" maxlength="28" placeholder="例：自分のダッシュボード" required></label><label><span class="field-label">アイコン（絵文字・記号）</span><input class="text-field" name="icon" maxlength="4" placeholder="↗" value="↗"></label><label class="full"><span class="field-label">Webアドレス（https://…）</span><input class="text-field" name="url" type="url" placeholder="https://example.com" required></label><div class="full"><button class="primary-button" type="submit">＋ デスクトップに追加</button></div></form><div class="custom-app-list" id="customAppList"></div>';
       setupAppCenter(content);
     }
   }
@@ -309,7 +309,7 @@
   function evaluateExpression(source) {
     const clean = source.replace(/\s/g, "");
     const tokens = clean.match(/(?:\d+\.?\d*|\.\d+)|[()+\-*/%]/g);
-    if (!tokens || tokens.join("") !== clean) throw new Error("Invalid expression");
+    if (!tokens || tokens.join("") !== clean) throw new エラー("計算式が正しくありません");
     let index = 0;
     function expression() {
       let value = term();
@@ -325,7 +325,7 @@
       while (tokens[index] === "*" || tokens[index] === "/" || tokens[index] === "%") {
         const operator = tokens[index++];
         const right = unary();
-        if ((operator === "/" || operator === "%") && right === 0) throw new Error("Cannot divide by zero");
+        if ((operator === "/" || operator === "%") && right === 0) throw new エラー("0で割ることはできません");
         if (operator === "*") value *= right;
         if (operator === "/") value /= right;
         if (operator === "%") value %= right;
@@ -341,14 +341,14 @@
       const token = tokens[index++];
       if (token === "(") {
         const value = expression();
-        if (tokens[index++] !== ")") throw new Error("Missing closing parenthesis");
+        if (tokens[index++] !== ")") throw new エラー("閉じ括弧がありません");
         return value;
       }
-      if (!token || !/^\d*\.?\d+$/.test(token)) throw new Error("Invalid number");
+      if (!token || !/^\d*\.?\d+$/.test(token)) throw new エラー("数値が正しくありません");
       return Number(token);
     }
     const result = expression();
-    if (index !== tokens.length || !Number.isFinite(result)) throw new Error("Invalid result");
+    if (index !== tokens.length || !Number.isFinite(result)) throw new エラー("計算結果が正しくありません");
     return result;
   }
 
@@ -374,7 +374,7 @@
           expression = String(Number(answer.toPrecision(11)));
           value.textContent = expression;
           justEvaluated = true;
-        } catch (_) { value.textContent = "Error"; justEvaluated = true; }
+        } catch (_) { value.textContent = "エラー"; justEvaluated = true; }
         return;
       }
       if (/^[0-9.]$/.test(key)) {
@@ -393,7 +393,7 @@
     const input = $("#imageFile", root);
     const drop = $("#viewerDrop", root);
     function showFile(file) {
-      if (!file || !file.type.startsWith("image/")) { showToast("Please choose an image file."); return; }
+      if (!file || !file.type.startsWith("image/")) { showToast("画像ファイルを選択してください。"); return; }
       const url = URL.createObjectURL(file);
       const image = document.createElement("img");
       image.className = "viewer-preview";
@@ -431,7 +431,7 @@
       theme.value = "dark";
       wallpaper.value = "aurora";
       applyAppearance("dark", "aurora");
-      showToast("Appearance reset.");
+      showToast("外観を初期状態に戻しました。");
     });
   }
 
@@ -446,8 +446,8 @@
       const icon = String(data.get("icon") || "↗").trim() || "↗";
       let url;
       try { url = new URL(String(data.get("url") || "").trim()); }
-      catch (_) { showToast("Enter a valid web address."); return; }
-      if (!["https:", "http:"].includes(url.protocol)) { showToast("Only web addresses are supported."); return; }
+      catch (_) { showToast("正しいWebアドレスを入力してください。"); return; }
+      if (!["https:", "http:"].includes(url.protocol)) { showToast("Webアドレスを入力してください。"); return; }
       if (!name) return;
       const app = { id: "web-" + Date.now().toString(36), name, icon, url: url.href };
       customApps.push(app);
@@ -456,7 +456,7 @@
       renderLauncher(launcherSearch.value);
       form.reset();
       form.elements.icon.value = "↗";
-      showToast(name + " added to your launcher.");
+      showToast(name + "をランチャーに追加しました。");
     });
   }
 
@@ -465,7 +465,7 @@
     if (!customApps.length) {
       const empty = document.createElement("div");
       empty.className = "empty-state";
-      empty.textContent = "No custom apps yet. Add a website above to get started.";
+      empty.textContent = "追加したアプリはまだありません。上のフォームからWebサイトを登録してください。";
       list.append(empty);
       return;
     }
@@ -485,7 +485,7 @@
       const remove = document.createElement("button");
       remove.className = "small-button";
       remove.type = "button";
-      remove.textContent = "Remove";
+      remove.textContent = "削除";
       remove.addEventListener("click", () => {
         customApps = customApps.filter((item) => item.id !== app.id);
         writeStorage(STORAGE.customApps, customApps);
@@ -493,7 +493,7 @@
         renderLauncher(launcherSearch.value);
         const win = windows.get(app.id);
         if (win) { win.remove(); windows.delete(app.id); updateDockState(); }
-        showToast("App removed.");
+        showToast("アプリを削除しました。");
       });
       row.append(icon, details, remove);
       list.append(row);
@@ -508,9 +508,9 @@
 
   function initialize() {
     const savedTheme = readStorage(STORAGE.theme, "dark");
-    const savedWallpaper = readStorage(STORAGE.wallpaper, "aurora");
+    const saved壁紙 = readStorage(STORAGE.wallpaper, "aurora");
     document.body.dataset.theme = savedTheme === "light" ? "light" : "dark";
-    document.body.dataset.wallpaper = ["aurora", "sunset", "ocean", "graphite"].includes(savedWallpaper) ? savedWallpaper : "aurora";
+    document.body.dataset.wallpaper = ["aurora", "sunset", "ocean", "graphite"].includes(saved壁紙) ? saved壁紙 : "aurora";
 
     renderDesktopIcons();
     renderDock();
