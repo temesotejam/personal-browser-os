@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="A personal desktop environment that runs in your browser.">
-  <title>My Desktop — Personal Browser OS</title>
+  <meta name="description" content="ブラウザーで動作する、自分専用のデスクトップ環境です。">
+  <title>マイデスクトップ — パーソナルOS</title>
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
@@ -13,43 +13,43 @@
 <body data-theme="dark" data-wallpaper="aurora">
   <div class="boot-screen" id="bootScreen" aria-live="polite">
     <div class="boot-mark">P</div>
-    <div class="boot-title">PERSONAL DESKTOP</div>
+    <div class="boot-title">パーソナルデスクトップ</div>
     <div class="boot-subtitle">Preparing your workspace…</div>
     <div class="boot-progress"><span></span></div>
   </div>
   <main class="desktop" id="desktop">
     <header class="topbar">
-      <button class="brand-button" id="launcherButton" aria-label="Open app launcher" title="App launcher">
-        <span class="brand-mark">P</span><span class="brand-name">personal<span>OS</span></span>
+      <button class="brand-button" id="launcherButton" aria-label="アプリ一覧を開く" title="アプリ一覧">
+        <span class="brand-mark">P</span><span class="brand-name">パーソナル<span>OS</span></span>
       </button>
       <div class="topbar-divider"></div>
-      <div class="workspace-label"><span class="status-dot"></span> My Workspace</div>
+      <div class="workspace-label"><span class="status-dot"></span> マイワークスペース</div>
       <div class="topbar-spacer"></div>
-      <div class="topbar-status"><span class="status-label">LOCAL SESSION</span><span class="status-dot"></span></div>
-      <time class="clock" id="clock" aria-label="Current date and time"></time>
+      <div class="topbar-status"><span class="status-label">ローカルセッション</span><span class="status-dot"></span></div>
+      <time class="clock" id="clock" aria-label="現在の日時"></time>
     </header>
-    <section class="desktop-area" aria-label="Desktop">
+    <section class="desktop-area" aria-label="デスクトップ">
       <div class="desktop-heading">
-        <p class="eyebrow">YOUR SPACE. YOUR RULES.</p>
-        <h1>Good to see you<span>.</span></h1>
+        <p class="eyebrow">あなたの場所を、あなたらしく。</p>
+        <h1>おかえりなさい<span>。</span></h1>
         <p class="desktop-date" id="desktopDate"></p>
       </div>
-      <div class="desktop-icons" id="desktopIcons" aria-label="Desktop applications"></div>
+      <div class="desktop-icons" id="desktopIcons" aria-label="デスクトップのアプリ"></div>
       <div class="window-layer" id="windowLayer"></div>
-      <div class="desktop-footer"><span>PERSONAL BROWSER OS</span><span>Everything stays in this browser</span></div>
+      <div class="desktop-footer"><span>パーソナルブラウザーOS</span><span>データはこのブラウザー内に保存されます</span></div>
     </section>
     <footer class="dock-wrap">
-      <nav class="dock" id="dock" aria-label="Favorite applications"></nav>
-      <div class="dock-tray"><span class="tray-indicator" title="Browser session"></span><span class="tray-text">READY</span></div>
+      <nav class="dock" id="dock" aria-label="お気に入りのアプリ"></nav>
+      <div class="dock-tray"><span class="tray-indicator" title="ブラウザーの状態"></span><span class="tray-text">準備完了</span></div>
     </footer>
-    <section class="launcher-panel" id="launcherPanel" aria-label="App launcher" hidden>
+    <section class="launcher-panel" id="launcherPanel" aria-label="アプリ一覧" hidden>
       <div class="launcher-header">
-        <div><p class="eyebrow">APPLICATIONS</p><h2>Launch something</h2></div>
-        <button class="icon-button" id="closeLauncher" aria-label="Close launcher">×</button>
+        <div><p class="eyebrow">アプリケーション</p><h2>アプリを起動</h2></div>
+        <button class="icon-button" id="closeLauncher" aria-label="アプリ一覧を閉じる">×</button>
       </div>
-      <div class="launcher-search-wrap"><span>⌕</span><input id="launcherSearch" type="search" placeholder="Search apps…" autocomplete="off"></div>
+      <div class="launcher-search-wrap"><span>⌕</span><input id="launcherSearch" type="search" placeholder="アプリを検索…" autocomplete="off"></div>
       <div class="launcher-grid" id="launcherGrid"></div>
-      <div class="launcher-bottom"><span>PERSONAL DESKTOP</span><span id="appCount"></span></div>
+      <div class="launcher-bottom"><span>パーソナルデスクトップ</span><span id="appCount"></span></div>
     </section>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </main>
