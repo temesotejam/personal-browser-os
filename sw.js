@@ -1,9 +1,10 @@
-const CACHE_NAME = "personal-browser-os-v5";
+const CACHE_NAME = "personal-browser-os-v6";
+const RELEASE = "ja-20261101-6";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?release=ja-20261101-5",
-  "./app.js?release=ja-20261101-5",
+  "./styles.css?release=" + RELEASE,
+  "./app.js?release=" + RELEASE,
   "./manifest.webmanifest",
   "./assets/icon.svg"
 ];
@@ -21,6 +22,10 @@ self.addEventListener("activate", (event) => {
     caches.keys()
       .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: "window", includeUncontrolled: true }))
+      .then((clients) => Promise.all(
+        clients.map((client) => client.navigate(client.url).catch(() => null))
+      ))
   );
 });
 
