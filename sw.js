@@ -1,5 +1,5 @@
-const CACHE_NAME = "personal-browser-os-v7";
-const RELEASE = "ja-20261101-7";
+const CACHE_NAME = "personal-browser-os-v8";
+const RELEASE = "ja-20261101-8";
 const APP_SHELL = [
   "./",
   "./index.html",
