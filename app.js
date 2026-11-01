@@ -499,3 +499,59 @@
       list.append(row);
     });
   }
+
+  function updateClock() {
+    const now = new Date();
+    $("#clock").textContent = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+    $("#desktopDate").textContent = now.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+  }
+
+  function initialize() {
+    const savedTheme = readStorage(STORAGE.theme, "dark");
+    const savedWallpaper = readStorage(STORAGE.wallpaper, "aurora");
+    document.body.dataset.theme = savedTheme === "light" ? "light" : "dark";
+    document.body.dataset.wallpaper = ["aurora", "sunset", "ocean", "graphite"].includes(savedWallpaper) ? savedWallpaper : "aurora";
+
+    renderDesktopIcons();
+    renderDock();
+    renderLauncher("");
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    $("#launcherButton").addEventListener("click", toggleLauncher);
+    $("#closeLauncher").addEventListener("click", () => { launcherPanel.hidden = true; });
+    launcherSearch.addEventListener("input", () => renderLauncher(launcherSearch.value));
+    document.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.code === "Space") {
+        event.preventDefault();
+        toggleLauncher();
+      }
+      if (event.key === "Escape" && !launcherPanel.hidden) launcherPanel.hidden = true;
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (!launcherPanel.hidden && !launcherPanel.contains(event.target) && !$("#launcherButton").contains(event.target)) {
+        if (!event.target.closest(".dock")) launcherPanel.hidden = true;
+      }
+    });
+    window.addEventListener("resize", () => {
+      windows.forEach((win) => {
+        if (win.classList.contains("maximized")) return;
+        const maxLeft = Math.max(0, desktopArea.clientWidth - win.offsetWidth);
+        const maxTop = Math.max(0, desktopArea.clientHeight - 60);
+        win.style.left = Math.min(parseFloat(win.style.left) || 0, maxLeft) + "px";
+        win.style.top = Math.min(parseFloat(win.style.top) || 0, maxTop) + "px";
+      });
+    });
+
+    setTimeout(() => $("#bootScreen").classList.add("done"), 850);
+    openApp("home");
+
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {
+        // The desktop remains fully usable when offline caching is unavailable.
+      });
+    }
+  }
+
+  initialize();
+})();
