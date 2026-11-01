@@ -268,7 +268,7 @@
 
     if (id === "browser") {
       content.classList.add("no-padding");
-      content.innerHTML = '<div class="browser-app"><form class="browser-toolbar" id="browserForm"><button class="browser-control" type="button" data-browser-action="back" aria-label="戻る" title="戻る" disabled>←</button><button class="browser-control" type="button" data-browser-action="forward" aria-label="進む" title="進む" disabled>→</button><button class="browser-control" type="button" data-browser-action="reload" aria-label="再読み込み" title="再読み込み">↻</button><input class="browser-address" id="browserAddress" type="text" inputmode="url" autocomplete="url" placeholder="URLまたは検索語句を入力"><button class="browser-go" type="submit">移動</button><button class="browser-external" type="button" data-browser-action="external" title="別タブで開く">↗</button></form><div class="browser-notice" id="browserNotice">一部のWebサイトは安全上の理由でこの画面内に表示できません。その場合は右上の「別タブで開く」を使ってください。</div><div class="browser-start" id="browserStart"><div class="browser-start-mark">🌐</div><p class="eyebrow">パーソナルブラウザー</p><h2>インターネットを開く</h2><p>上のアドレス欄にURLまたは検索したい言葉を入力してください。</p><div class="browser-shortcuts"><button type="button" data-quick="https://www.google.com/">Google</button><button type="button" data-quick="https://www.youtube.com/">YouTube</button><button type="button" data-quick="https://github.com/">GitHub</button><button type="button" data-quick="https://ja.wikipedia.org/">Wikipedia</button></div><p class="browser-start-note">検索語句はGoogle検索を別タブで開きます。Webサイトによっては別タブでの表示が必要です。</p></div><iframe class="browser-frame" id="browserFrame" title="閲覧ページ" referrerpolicy="no-referrer" allow="fullscreen" hidden></iframe></div>';
+      content.innerHTML = '<div class="browser-app"><form class="browser-toolbar" id="browserForm"><button class="browser-control" type="button" data-browser-action="back" aria-label="戻る" title="戻る" disabled>←</button><button class="browser-control" type="button" data-browser-action="forward" aria-label="進む" title="進む" disabled>→</button><button class="browser-control" type="button" data-browser-action="home" aria-label="ホーム" title="ホーム">⌂</button><button class="browser-control" type="button" data-browser-action="reload" aria-label="再読み込み" title="再読み込み">↻</button><input class="browser-address" id="browserAddress" type="text" inputmode="url" autocomplete="url" placeholder="URLまたは検索語句を入力"><button class="browser-go" type="submit">移動</button></form><div class="browser-notice" id="browserNotice">この画面の中でWebサイトを表示します。サイト側の制限により表示できないページもあります。</div><div class="browser-start" id="browserStart"><div class="browser-start-mark">🌐</div><p class="eyebrow">パーソナルブラウザー</p><h2>インターネットを開く</h2><p>上のアドレス欄にURLまたは検索したい言葉を入力してください。</p><div class="browser-shortcuts"><button type="button" data-quick="https://www.google.com/webhp?igu=1&amp;gws_rd=ssl">Google検索</button><button type="button" data-quick="https://www.youtube.com/">YouTube</button><button type="button" data-quick="https://github.com/">GitHub</button><button type="button" data-quick="https://ja.wikipedia.org/">Wikipedia</button></div><p class="browser-start-note">検索結果もWebサイトも、このウィンドウ内で開きます。表示できない場合は、サイト側が埋め込みを制限している可能性があります。</p></div><iframe class="browser-frame" id="browserFrame" title="閲覧ページ" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms" allow="fullscreen" hidden></iframe></div>';
       setupBrowser(content);
       return;
     }
@@ -370,7 +370,6 @@
     const notice = $("#browserNotice", root);
     const back = $('[data-browser-action="back"]', root);
     const forward = $('[data-browser-action="forward"]', root);
-    const external = $('[data-browser-action="external"]', root);
     let history = [];
     let historyIndex = -1;
     let currentUrl = "";
@@ -378,33 +377,29 @@
     function updateNavigation() {
       back.disabled = historyIndex <= 0;
       forward.disabled = historyIndex < 0 || historyIndex >= history.length - 1;
-      external.disabled = !currentUrl;
     }
 
-    function showStart(message) {
+    function showStart() {
       frame.hidden = true;
+      frame.removeAttribute("src");
       start.hidden = false;
       currentUrl = "";
-      notice.textContent = message || "一部のWebサイトは安全上の理由でこの画面内に表示できません。その場合は右上の「別タブで開く」を使ってください。";
+      address.value = "";
+      notice.textContent = "この画面の中でWebサイトを表示します。サイト側の制限により表示できないページもあります。";
+      history = [];
+      historyIndex = -1;
       updateNavigation();
-    }
-
-    function openExternal(url) {
-      const opened = window.open(url, "_blank");
-      if (!opened) {
-        showToast("新しいタブが開けませんでした。ブラウザーのポップアップ設定を確認してください。");
-        return;
-      }
-      opened.opener = null;
-      showToast("Webサイトを別タブで開きました。");
     }
 
     function normalizeInput(value) {
       const input = value.trim();
       if (!input) return null;
+
+      // URLらしくない入力はGoogle検索として、iframe内で開く。
       if (/\s/.test(input) || (!input.includes(".") && !/^https?:\/\//i.test(input))) {
-        return { search: "https://www.google.com/search?q=" + encodeURIComponent(input) };
+        return { url: "https://www.google.com/search?igu=1&q=" + encodeURIComponent(input) };
       }
+
       let candidate = input;
       if (!/^https?:\/\//i.test(candidate)) candidate = "https://" + candidate;
       try {
@@ -433,7 +428,7 @@
         start.hidden = true;
         frame.hidden = false;
         frame.src = currentUrl;
-        notice.textContent = "表示先：" + parsed.hostname + " ／ サイト側の制限で表示されない場合は「別タブで開く」を使ってください。";
+        notice.textContent = "表示先：" + parsed.hostname + " ／ ページはこのウィンドウ内に読み込みます。表示されない場合は、サイト側の埋め込み制限が考えられます。";
         updateNavigation();
       } catch (_) {
         showToast("URLを確認してください。");
@@ -447,22 +442,19 @@
         showToast("URLまたは検索語句を入力してください。");
         return;
       }
-      if (result.search) {
-        openExternal(result.search);
-        notice.textContent = "Google検索を別タブで開きました。URLを入力すると、この画面内で表示を試みます。";
-        return;
-      }
       navigate(result.url, true);
     });
 
     root.querySelectorAll("[data-quick]").forEach((button) => {
-      button.addEventListener("click", () => openExternal(button.dataset.quick));
+      button.addEventListener("click", () => navigate(button.dataset.quick, true));
     });
 
     root.querySelectorAll("[data-browser-action]").forEach((button) => {
       button.addEventListener("click", () => {
         const action = button.dataset.browserAction;
-        if (action === "back" && historyIndex > 0) {
+        if (action === "home") {
+          showStart();
+        } else if (action === "back" && historyIndex > 0) {
           historyIndex -= 1;
           navigate(history[historyIndex], false);
         } else if (action === "forward" && historyIndex < history.length - 1) {
@@ -470,15 +462,13 @@
           navigate(history[historyIndex], false);
         } else if (action === "reload" && currentUrl) {
           frame.src = currentUrl;
-        } else if (action === "external" && currentUrl) {
-          openExternal(currentUrl);
         }
       });
     });
 
     frame.addEventListener("load", () => {
       if (!currentUrl || frame.hidden) return;
-      notice.textContent = "ページを読み込みました。内容が表示されない場合は、サイト側が埋め込みを禁止している可能性があります。「別タブで開く」を試してください。";
+      notice.textContent = "ページを読み込みました。何も表示されない場合は、サイト側が埋め込みを禁止している可能性があります。";
     });
 
     updateNavigation();
