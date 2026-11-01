@@ -34,9 +34,9 @@ self.addEventListener("fetch", (event) => {
       .then((response) => {
         if (response && response.ok) {
           const copy = response.clone();
-          event.waitUntil(
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy))
-          );
+          return caches.open(CACHE_NAME)
+            .then((cache) => cache.put(event.request, copy))
+            .then(() => response);
         }
         return response;
       })
