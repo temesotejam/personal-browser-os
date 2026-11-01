@@ -679,9 +679,18 @@
     openApp("home");
 
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-      navigator.serviceWorker.register("./sw.js").catch(() => {
-        // The desktop remains fully usable when offline caching is unavailable.
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshing) return;
+        refreshing = true;
+        location.reload();
       });
+
+      navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+        .then((registration) => registration.update().catch(() => {}))
+        .catch(() => {
+          // デスクトップはオフラインキャッシュが使えなくても動作します。
+        });
     }
   }
 
