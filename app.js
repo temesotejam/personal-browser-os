@@ -18,6 +18,7 @@
 
   const apps = [
     { id: "home", name: "ホーム", icon: "⌂", description: "あなた専用のデスクトップ概要", width: 650, height: 460, desktop: true, dock: true },
+    { id: "browser", name: "ブラウザー", icon: "🌐", description: "Webサイトを閲覧・検索", width: 900, height: 620, desktop: true, dock: true },
     { id: "calculator", name: "電卓", icon: "∑", description: "日常使いのシンプルな電卓", width: 360, height: 465, desktop: true, dock: true },
     { id: "notes", name: "メモ帳", icon: "▤", description: "思いついたことを書き留める場所", width: 520, height: 440, desktop: true, dock: true },
     { id: "viewer", name: "画像ビューア", icon: "▧", description: "端末内の画像を表示", width: 600, height: 430, desktop: true, dock: true },
@@ -309,7 +310,7 @@
   function evaluateExpression(source) {
     const clean = source.replace(/\s/g, "");
     const tokens = clean.match(/(?:\d+\.?\d*|\.\d+)|[()+\-*/%]/g);
-    if (!tokens || tokens.join("") !== clean) throw new エラー("計算式が正しくありません");
+    if (!tokens || tokens.join("") !== clean) throw new Error("計算式が正しくありません");
     let index = 0;
     function expression() {
       let value = term();
@@ -325,7 +326,7 @@
       while (tokens[index] === "*" || tokens[index] === "/" || tokens[index] === "%") {
         const operator = tokens[index++];
         const right = unary();
-        if ((operator === "/" || operator === "%") && right === 0) throw new エラー("0で割ることはできません");
+        if ((operator === "/" || operator === "%") && right === 0) throw new Error("0で割ることはできません");
         if (operator === "*") value *= right;
         if (operator === "/") value /= right;
         if (operator === "%") value %= right;
@@ -341,14 +342,14 @@
       const token = tokens[index++];
       if (token === "(") {
         const value = expression();
-        if (tokens[index++] !== ")") throw new エラー("閉じ括弧がありません");
+        if (tokens[index++] !== ")") throw new Error("閉じ括弧がありません");
         return value;
       }
-      if (!token || !/^\d*\.?\d+$/.test(token)) throw new エラー("数値が正しくありません");
+      if (!token || !/^\d*\.?\d+$/.test(token)) throw new Error("数値が正しくありません");
       return Number(token);
     }
     const result = expression();
-    if (index !== tokens.length || !Number.isFinite(result)) throw new エラー("計算結果が正しくありません");
+    if (index !== tokens.length || !Number.isFinite(result)) throw new Error("計算結果が正しくありません");
     return result;
   }
 
