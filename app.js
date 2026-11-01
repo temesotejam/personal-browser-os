@@ -242,3 +242,260 @@
       win.style.height = "calc(100% - 16px)";
     }
   }
+
+  function mountApp(id, content) {
+    if (id.startsWith("web-")) {
+      const app = customApps.find((item) => item.id === id);
+      if (!app) return;
+      content.classList.add("no-padding");
+      const frame = document.createElement("iframe");
+      frame.title = app.name;
+      frame.loading = "lazy";
+      frame.referrerPolicy = "no-referrer";
+      frame.sandbox = "allow-forms allow-scripts allow-popups";
+      frame.src = app.url;
+      content.append(frame);
+      return;
+    }
+
+    if (id === "home") {
+      content.innerHTML = '<div class="app-hero"><p class="eyebrow">WELCOME TO YOUR SPACE</p><h2>A desktop that is yours.</h2><p>This is a small, personal workspace running entirely in your browser. Open an app, arrange your windows, and make the space your own.</p></div><div class="app-cards"><article class="app-card"><span class="card-icon">▤</span><h3>Capture a thought</h3><p>Keep quick notes in your browser. Your text is saved automatically on this device.</p><button class="small-button" data-open="notes" style="margin-top:12px">Open Notes ↗</button></article><article class="app-card"><span class="card-icon">∑</span><h3>Work something out</h3><p>A lightweight calculator for everyday numbers and quick checks.</p><button class="small-button" data-open="calculator" style="margin-top:12px">Open Calculator ↗</button></article><article class="app-card"><span class="card-icon">▧</span><h3>Look at an image</h3><p>Preview an image from your computer without uploading it to a server.</p><button class="small-button" data-open="viewer" style="margin-top:12px">Open Viewer ↗</button></article><article class="app-card"><span class="card-icon">＋</span><h3>Make it yours</h3><p>Add a website or your own hosted web app to the launcher.</p><button class="small-button" data-open="app-center" style="margin-top:12px">Add an app ↗</button></article></div>';
+      wireOpenButtons(content);
+      return;
+    }
+
+    if (id === "calculator") {
+      content.innerHTML = '<div class="calc"><div class="calc-display"><div class="calc-expression" id="calcExpression"></div><div class="calc-value" id="calcValue">0</div></div><div class="calc-grid"><button class="calc-key" data-key="clear">AC</button><button class="calc-key" data-key="back">⌫</button><button class="calc-key operator" data-key="%">%</button><button class="calc-key operator" data-key="/">÷</button><button class="calc-key" data-key="7">7</button><button class="calc-key" data-key="8">8</button><button class="calc-key" data-key="9">9</button><button class="calc-key operator" data-key="*">×</button><button class="calc-key" data-key="4">4</button><button class="calc-key" data-key="5">5</button><button class="calc-key" data-key="6">6</button><button class="calc-key operator" data-key="-">−</button><button class="calc-key" data-key="1">1</button><button class="calc-key" data-key="2">2</button><button class="calc-key" data-key="3">3</button><button class="calc-key operator" data-key="+">+</button><button class="calc-key wide" data-key="0">0</button><button class="calc-key" data-key=".">.</button><button class="calc-key equals" data-key="=">=</button></div></div>';
+      setupCalculator(content);
+      return;
+    }
+
+    if (id === "notes") {
+      content.innerHTML = '<div class="notes-layout"><div class="notes-toolbar"><span>PERSONAL NOTE</span><span id="notesStatus">SAVED LOCALLY</span></div><textarea class="notes-area" id="notesArea" placeholder="Start writing…"></textarea></div>';
+      const area = $("#notesArea", content);
+      area.value = readStorage(STORAGE.notes, "");
+      area.addEventListener("input", () => {
+        writeStorage(STORAGE.notes, area.value);
+        $("#notesStatus", content).textContent = "SAVED JUST NOW";
+      });
+      return;
+    }
+
+    if (id === "viewer") {
+      content.classList.add("no-padding");
+      content.innerHTML = '<div class="viewer-frame"><div class="viewer-drop" id="viewerDrop"><div style="font-size:34px">▧</div><strong style="font-size:12px">Drop an image here</strong><span style="font-size:10px">or choose a file from your device</span><label class="primary-button" for="imageFile">Choose image</label><input id="imageFile" type="file" accept="image/*" hidden></div></div>';
+      setupViewer(content);
+      return;
+    }
+
+    if (id === "settings") {
+      content.innerHTML = '<div class="settings-section"><h3>Appearance</h3><p>Choose the look and atmosphere of your desktop.</p><div class="settings-row"><label><span class="field-label">Color theme</span><select class="select-field" id="themeSelect"><option value="dark">Midnight</option><option value="light">Daylight</option></select></label><label><span class="field-label">Wallpaper</span><select class="select-field" id="wallpaperSelect"><option value="aurora">Aurora</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="graphite">Graphite</option></select></label></div></div><div class="settings-section"><h3>Privacy</h3><p>Notes, preferences, and custom app shortcuts are stored in this browser using local storage. Images selected in Image Viewer are previewed locally and are not uploaded.</p></div><div class="settings-section"><h3>About this desktop</h3><p>Personal Browser OS · First release. A static web app designed for GitHub Pages.</p><button class="secondary-button" id="resetSettings">Reset appearance</button></div>';
+      setupSettings(content);
+      return;
+    }
+
+    if (id === "app-center") {
+      content.innerHTML = '<div class="app-hero"><p class="eyebrow">MAKE IT YOURS</p><h2>Your apps, one desktop.</h2><p>Add a website or a web app you host yourself. It will appear in the launcher and open in its own window.</p></div><form class="custom-app-form" id="customAppForm"><label><span class="field-label">App name</span><input class="text-field" name="name" maxlength="28" placeholder="e.g. My dashboard" required></label><label><span class="field-label">Icon (emoji or symbol)</span><input class="text-field" name="icon" maxlength="4" placeholder="↗" value="↗"></label><label class="full"><span class="field-label">Web address (https://…)</span><input class="text-field" name="url" type="url" placeholder="https://example.com" required></label><div class="full"><button class="primary-button" type="submit">＋ Add to my desktop</button></div></form><div class="custom-app-list" id="customAppList"></div>';
+      setupAppCenter(content);
+    }
+  }
+
+  function wireOpenButtons(root) {
+    root.querySelectorAll("[data-open]").forEach((button) => {
+      button.addEventListener("click", () => openApp(button.dataset.open));
+    });
+  }
+
+  function evaluateExpression(source) {
+    const clean = source.replace(/\s/g, "");
+    const tokens = clean.match(/(?:\d+\.?\d*|\.\d+)|[()+\-*/%]/g);
+    if (!tokens || tokens.join("") !== clean) throw new Error("Invalid expression");
+    let index = 0;
+    function expression() {
+      let value = term();
+      while (tokens[index] === "+" || tokens[index] === "-") {
+        const operator = tokens[index++];
+        const right = term();
+        value = operator === "+" ? value + right : value - right;
+      }
+      return value;
+    }
+    function term() {
+      let value = unary();
+      while (tokens[index] === "*" || tokens[index] === "/" || tokens[index] === "%") {
+        const operator = tokens[index++];
+        const right = unary();
+        if ((operator === "/" || operator === "%") && right === 0) throw new Error("Cannot divide by zero");
+        if (operator === "*") value *= right;
+        if (operator === "/") value /= right;
+        if (operator === "%") value %= right;
+      }
+      return value;
+    }
+    function unary() {
+      if (tokens[index] === "+") { index++; return unary(); }
+      if (tokens[index] === "-") { index++; return -unary(); }
+      return primary();
+    }
+    function primary() {
+      const token = tokens[index++];
+      if (token === "(") {
+        const value = expression();
+        if (tokens[index++] !== ")") throw new Error("Missing closing parenthesis");
+        return value;
+      }
+      if (!token || !/^\d*\.?\d+$/.test(token)) throw new Error("Invalid number");
+      return Number(token);
+    }
+    const result = expression();
+    if (index !== tokens.length || !Number.isFinite(result)) throw new Error("Invalid result");
+    return result;
+  }
+
+  function setupCalculator(root) {
+    let expression = "";
+    let justEvaluated = false;
+    const value = $("#calcValue", root);
+    const history = $("#calcExpression", root);
+    function render() {
+      value.textContent = expression || "0";
+      history.textContent = "";
+    }
+    root.querySelector(".calc-grid").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-key]");
+      if (!button) return;
+      const key = button.dataset.key;
+      if (key === "clear") { expression = ""; justEvaluated = false; render(); return; }
+      if (key === "back") { expression = expression.slice(0, -1); justEvaluated = false; render(); return; }
+      if (key === "=") {
+        try {
+          const answer = evaluateExpression(expression);
+          history.textContent = expression + " =";
+          expression = String(Number(answer.toPrecision(11)));
+          value.textContent = expression;
+          justEvaluated = true;
+        } catch (_) { value.textContent = "Error"; justEvaluated = true; }
+        return;
+      }
+      if (/^[0-9.]$/.test(key)) {
+        if (justEvaluated) expression = "";
+        justEvaluated = false;
+        expression += key;
+      } else {
+        if (justEvaluated) justEvaluated = false;
+        expression += key;
+      }
+      render();
+    });
+  }
+
+  function setupViewer(root) {
+    const input = $("#imageFile", root);
+    const drop = $("#viewerDrop", root);
+    function showFile(file) {
+      if (!file || !file.type.startsWith("image/")) { showToast("Please choose an image file."); return; }
+      const url = URL.createObjectURL(file);
+      const image = document.createElement("img");
+      image.className = "viewer-preview";
+      image.alt = file.name;
+      image.src = url;
+      image.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
+      const frame = $(".viewer-frame", root);
+      frame.replaceChildren(image);
+    }
+    input.addEventListener("change", () => showFile(input.files && input.files[0]));
+    drop.addEventListener("dragover", (event) => { event.preventDefault(); drop.style.borderColor = "var(--accent)"; });
+    drop.addEventListener("dragleave", () => { drop.style.borderColor = ""; });
+    drop.addEventListener("drop", (event) => {
+      event.preventDefault();
+      drop.style.borderColor = "";
+      showFile(event.dataTransfer.files && event.dataTransfer.files[0]);
+    });
+  }
+
+  function applyAppearance(theme, wallpaper) {
+    document.body.dataset.theme = theme;
+    document.body.dataset.wallpaper = wallpaper;
+    writeStorage(STORAGE.theme, theme);
+    writeStorage(STORAGE.wallpaper, wallpaper);
+  }
+
+  function setupSettings(root) {
+    const theme = $("#themeSelect", root);
+    const wallpaper = $("#wallpaperSelect", root);
+    theme.value = document.body.dataset.theme;
+    wallpaper.value = document.body.dataset.wallpaper;
+    theme.addEventListener("change", () => applyAppearance(theme.value, wallpaper.value));
+    wallpaper.addEventListener("change", () => applyAppearance(theme.value, wallpaper.value));
+    $("#resetSettings", root).addEventListener("click", () => {
+      theme.value = "dark";
+      wallpaper.value = "aurora";
+      applyAppearance("dark", "aurora");
+      showToast("Appearance reset.");
+    });
+  }
+
+  function setupAppCenter(root) {
+    const form = $("#customAppForm", root);
+    const list = $("#customAppList", root);
+    renderCustomAppList(list);
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const name = String(data.get("name") || "").trim();
+      const icon = String(data.get("icon") || "↗").trim() || "↗";
+      let url;
+      try { url = new URL(String(data.get("url") || "").trim()); }
+      catch (_) { showToast("Enter a valid web address."); return; }
+      if (!["https:", "http:"].includes(url.protocol)) { showToast("Only web addresses are supported."); return; }
+      if (!name) return;
+      const app = { id: "web-" + Date.now().toString(36), name, icon, url: url.href };
+      customApps.push(app);
+      writeStorage(STORAGE.customApps, customApps);
+      renderCustomAppList(list);
+      renderLauncher(launcherSearch.value);
+      form.reset();
+      form.elements.icon.value = "↗";
+      showToast(name + " added to your launcher.");
+    });
+  }
+
+  function renderCustomAppList(list) {
+    list.replaceChildren();
+    if (!customApps.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "No custom apps yet. Add a website above to get started.";
+      list.append(empty);
+      return;
+    }
+    customApps.forEach((app) => {
+      const row = document.createElement("div");
+      row.className = "custom-app-item";
+      const icon = document.createElement("span");
+      icon.textContent = app.icon || "↗";
+      const details = document.createElement("div");
+      details.className = "app-name";
+      const name = document.createElement("div");
+      name.textContent = app.name;
+      const url = document.createElement("span");
+      url.className = "app-url";
+      url.textContent = app.url;
+      details.append(name, url);
+      const remove = document.createElement("button");
+      remove.className = "small-button";
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => {
+        customApps = customApps.filter((item) => item.id !== app.id);
+        writeStorage(STORAGE.customApps, customApps);
+        renderCustomAppList(list);
+        renderLauncher(launcherSearch.value);
+        const win = windows.get(app.id);
+        if (win) { win.remove(); windows.delete(app.id); updateDockState(); }
+        showToast("App removed.");
+      });
+      row.append(icon, details, remove);
+      list.append(row);
+    });
+  }
