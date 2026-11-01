@@ -1,12 +1,13 @@
 {
-  "name": "Personal Browser OS",
-  "short_name": "Personal OS",
-  "description": "A personal desktop environment in your browser.",
+  "name": "パーソナルブラウザーOS",
+  "short_name": "パーソナルOS",
+  "description": "ブラウザーで動作する、自分専用のデスクトップ環境です。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#10162a",
   "theme_color": "#111827",
+  "lang": "ja",
   "icons": [
     {
       "src": "./assets/icon.svg",
