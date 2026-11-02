@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151b2b">
+  <title>C言語開発環境 — パーソナルOS</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="ide">
+    <header class="ide-toolbar">
+      <div class="ide-brand"><span class="ide-logo">C</span><span>C言語開発環境</span><small>Clang / WASI</small></div>
+      <div class="ide-tools">
+        <select id="examples" aria-label="プログラム例">
+          <option value="hello">Hello World</option>
+          <option value="calculate">数値計算</option>
+          <option value="input">入力と計算</option>
+          <option value="draw">図形・波形描画</option>
+        </select>
+        <button type="button" id="newFile">新規</button>
+        <button type="button" id="openFile">開く</button>
+        <button type="button" id="saveFile">保存</button>
+        <input type="file" id="fileInput" accept=".c,.h,text/plain" hidden>
+        <button type="button" id="compileBtn" title="ビルドのみ">ビルド</button>
+        <button type="button" class="primary" id="runBtn" title="Ctrl+Enter">▶ コンパイルして実行</button>
+        <button type="button" id="stopBtn" class="stop" disabled>■ 停止</button>
+      </div>
+    </header>
+    <div class="ide-info"><span id="status" role="status">C言語のプログラムを入力してください。</span><span>実行はすべてこの端末のブラウザー内で行います</span></div>
+    <div class="ide-workspace">
+      <section class="ide-editor">
+        <div class="section-title"><span id="filename">main.c</span><span>C11 / UTF-8</span></div>
+        <div class="editor-shell">
+          <pre id="gutter" aria-hidden="true">1</pre>
+          <textarea id="code" aria-label="C言語コードエディター" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        </div>
+        <div class="editor-footer">Ctrl+Enter：コンパイルして実行　/　Ctrl+S：保存</div>
+      </section>
+      <div class="ide-right">
+        <section class="ide-stdin">
+          <div class="section-title"><span>標準入力（stdin）</span><span>scanf / getchar</span></div>
+          <textarea id="stdin" spellcheck="false" placeholder="実行前に入力データをここへ記入します。"></textarea>
+        </section>
+        <section class="ide-output">
+          <div class="section-title"><span>実行結果・コンパイルメッセージ</span><button type="button" id="clearOutput">消去</button></div>
+          <pre id="output" aria-live="polite"></pre>
+        </section>
+        <section class="ide-drawing">
+          <div class="section-title"><span>描画キャンバス</span><button type="button" id="saveImage">画像保存</button></div>
+          <div class="canvas-wrap"><canvas id="plot" width="640" height="360" aria-label="C言語の描画結果"></canvas></div>
+        </section>
+      </div>
+    </div>
+    <footer class="ide-footer">
+      <span>初回のビルド時はコンパイラを読み込みます。追加サービスへのコード送信はありません。</span>
+      <span>LLVM 18 / wasi-libc</span>
+    </footer>
+  </main>
+  <script src="./app.js" defer></script>
+</body>
+</html>
