@@ -370,16 +370,86 @@
     const notice = $("#browserNotice", root);
     const back = $('[data-browser-action="back"]', root);
     const forward = $('[data-browser-action="forward"]', root);
+    const container = $(".browser-app", root);
     let history = [];
     let historyIndex = -1;
     let currentUrl = "";
+    let loadTimer = null;
+    let knownSiteTimer = null;
+    let navigationToken = 0;
+    let frameLoaded = false;
+
+    // iframeの読み込みイベントだけではX-Frame-Options/CSPの拒否を判定できない。
+    // 過去にOS内表示できなかったサイトは「表示できない可能性」を案内する。
+    const likelyBlockedHosts = [
+      "github.com", "youtube.com", "youtu.be", "accounts.google.com",
+      "mail.google.com", "instagram.com", "facebook.com", "x.com"
+    ];
+
+    const manualButton = document.createElement("button");
+    manualButton.type = "button";
+    manualButton.className = "browser-help";
+    manualButton.textContent = "表示できない場合";
+    manualButton.title = "表示できないサイトを別タブで開く";
+    form.append(manualButton);
+
+    const dialog = document.createElement("div");
+    dialog.className = "browser-fallback";
+    dialog.hidden = true;
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-label", "別タブで開くか確認");
+    const heading = document.createElement("h3");
+    heading.textContent = "別タブで開きますか？";
+    const message = document.createElement("p");
+    const actions = document.createElement("div");
+    actions.className = "browser-fallback-actions";
+    const stayButton = document.createElement("button");
+    stayButton.type = "button";
+    stayButton.className = "secondary-button";
+    stayButton.textContent = "OS内で続ける";
+    const openLink = document.createElement("a");
+    openLink.className = "primary-button browser-open-link";
+    openLink.textContent = "別タブで開く";
+    openLink.target = "_blank";
+    openLink.rel = "noopener noreferrer";
+    actions.append(stayButton, openLink);
+    dialog.append(heading, message, actions);
+    container.append(dialog);
+
+    function cancelChecks() {
+      clearTimeout(loadTimer);
+      clearTimeout(knownSiteTimer);
+      loadTimer = null;
+      knownSiteTimer = null;
+    }
 
     function updateNavigation() {
       back.disabled = historyIndex <= 0;
       forward.disabled = historyIndex < 0 || historyIndex >= history.length - 1;
+      manualButton.disabled = !currentUrl;
     }
 
+    function dismissPrompt() {
+      dialog.hidden = true;
+    }
+
+    function showPrompt(text) {
+      if (!currentUrl) return;
+      message.textContent = text;
+      openLink.href = currentUrl;
+      dialog.hidden = false;
+    }
+
+    stayButton.addEventListener("click", dismissPrompt);
+    openLink.addEventListener("click", dismissPrompt);
+    manualButton.addEventListener("click", () => {
+      showPrompt("このページをOS内で表示できない場合は、別タブで閲覧できます。");
+    });
+
     function showStart() {
+      cancelChecks();
+      navigationToken++;
+      dismissPrompt();
       frame.hidden = true;
       frame.removeAttribute("src");
       start.hidden = false;
@@ -394,12 +464,9 @@
     function normalizeInput(value) {
       const input = value.trim();
       if (!input) return null;
-
-      // URLらしくない入力はGoogle検索として、iframe内で開く。
       if (/\s/.test(input) || (!input.includes(".") && !/^https?:\/\//i.test(input))) {
         return { url: "https://www.google.com/search?igu=1&q=" + encodeURIComponent(input) };
       }
-
       let candidate = input;
       if (!/^https?:\/\//i.test(candidate)) candidate = "https://" + candidate;
       try {
@@ -411,6 +478,11 @@
       }
     }
 
+    function isLikelyBlocked(hostname) {
+      const host = hostname.toLowerCase();
+      return likelyBlockedHosts.some((blocked) => host === blocked || host.endsWith("." + blocked));
+    }
+
     function navigate(url, addHistory) {
       try {
         const parsed = new URL(url);
@@ -418,6 +490,12 @@
           showToast("HTTPまたはHTTPSのURLを入力してください。");
           return;
         }
+
+        cancelChecks();
+        dismissPrompt();
+        navigationToken++;
+        const token = navigationToken;
+        frameLoaded = false;
         currentUrl = parsed.href;
         address.value = currentUrl;
         if (addHistory !== false) {
@@ -428,8 +506,19 @@
         start.hidden = true;
         frame.hidden = false;
         frame.src = currentUrl;
-        notice.textContent = "表示先：" + parsed.hostname + " ／ ページはこのウィンドウ内に読み込みます。表示されない場合は、サイト側の埋め込み制限が考えられます。";
+        notice.textContent = "表示先：" + parsed.hostname + " ／ サイト側の制限で表示できない場合があります。";
         updateNavigation();
+
+        if (isLikelyBlocked(parsed.hostname)) {
+          knownSiteTimer = setTimeout(() => {
+            if (token !== navigationToken) return;
+            showPrompt("「" + parsed.hostname + "」はOS内への埋め込みが制限されることがあるサイトです。表示できなければ別タブで開けます。");
+          }, 1500);
+        }
+        loadTimer = setTimeout(() => {
+          if (token !== navigationToken || frameLoaded) return;
+          showPrompt("ページの読み込み完了を確認できません。別タブで開いてみますか？");
+        }, 9000);
       } catch (_) {
         showToast("URLを確認してください。");
       }
@@ -455,20 +544,26 @@
         if (action === "home") {
           showStart();
         } else if (action === "back" && historyIndex > 0) {
-          historyIndex -= 1;
+          historyIndex--;
           navigate(history[historyIndex], false);
         } else if (action === "forward" && historyIndex < history.length - 1) {
-          historyIndex += 1;
+          historyIndex++;
           navigate(history[historyIndex], false);
         } else if (action === "reload" && currentUrl) {
-          frame.src = currentUrl;
+          navigate(currentUrl, false);
         }
       });
     });
 
     frame.addEventListener("load", () => {
       if (!currentUrl || frame.hidden) return;
-      notice.textContent = "ページを読み込みました。何も表示されない場合は、サイト側が埋め込みを禁止している可能性があります。";
+      frameLoaded = true;
+      clearTimeout(loadTimer);
+      notice.textContent = "読み込み処理が完了しました。ページが表示されない場合は「表示できない場合」を押してください。";
+    });
+    frame.addEventListener("error", () => {
+      if (!currentUrl || frame.hidden) return;
+      showPrompt("ページの読み込みで問題が発生しました。別タブで開いてみますか？");
     });
 
     updateNavigation();
