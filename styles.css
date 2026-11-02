@@ -51,3 +51,18 @@ body[data-theme="light"] .desktop:before{filter:saturate(.8) brightness(1.42)}bo
 .browser-start .browser-start-note{max-width:430px;margin-top:22px;color:#9aa2b5;font-size:10px}
 .browser-frame{display:block;flex:1;width:100%;height:100%;min-height:0;border:0;background:white}
 @media(max-width:700px){.browser-toolbar{gap:4px;padding:7px}.browser-control,.browser-external{flex-basis:29px;width:29px;height:30px}.browser-address{height:31px;padding:0 8px;font-size:11px}.browser-go{height:31px;padding:0 9px}.browser-notice{font-size:9px;padding:6px 8px}.browser-start{padding:16px}.browser-start h2{font-size:21px}}
+
+/* OS内ブラウザー: 表示できないページの確認パネル */
+.browser-app{position:relative}
+.browser-help{flex:0 0 auto;min-height:32px;padding:0 10px;border:1px solid #cbd4e4;border-radius:9px;background:#fff;color:#3f4b68;font-size:10px;font-weight:600;white-space:nowrap}
+.browser-help:hover:not(:disabled){border-color:#8d7cff;color:#5143b4}
+.browser-help:disabled{opacity:.5;cursor:default}
+.browser-fallback{position:absolute;top:50%;left:50%;z-index:15;display:flex;flex-direction:column;gap:12px;width:min(400px,calc(100% - 30px));padding:24px;border:1px solid #ced5eb;border-radius:15px;background:#fff;color:#20263a;box-shadow:0 16px 65px rgba(24,34,70,.3);transform:translate(-50%,-50%)}
+.browser-fallback[hidden]{display:none}
+.browser-fallback h3{margin:0;font-size:18px;font-weight:700}
+.browser-fallback p{margin:0;color:#5e6b86;font-size:12px;line-height:1.8;overflow-wrap:anywhere}
+.browser-fallback-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:9px}
+.browser-fallback-actions .secondary-button{background:#edf0f8;color:#34405e}
+.browser-fallback-actions .browser-open-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:#7868e8;color:white}
+.browser-fallback-actions .browser-open-link:hover{background:#6556d4}
+@media(max-width:700px){.browser-help{max-width:79px;min-height:30px;padding:0 5px;font-size:9px;white-space:normal}.browser-fallback{padding:17px}.browser-fallback h3{font-size:16px}}
