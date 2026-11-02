@@ -1,0 +1,63 @@
+name: C言語コンパイラのローカル配置
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/install-c-toolchain.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: install-c-toolchain
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Download verified LLVM and wasi-libc toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p c-ide/toolchain
+          REV="0ca413907c0472fe04687037895378a6c51ff5b4"
+          BASE="https://raw.githubusercontent.com/senolgulgonul/derle/$REV/toolchain"
+          download() {
+            local name="$1" expected="$2"
+            echo "Installing $name"
+            curl --fail --location --retry 4 --retry-delay 3 --connect-timeout 25 --max-time 240 "$BASE/$name" -o "c-ide/toolchain/$name"
+            actual="$(git hash-object "c-ide/toolchain/$name")"
+            if [ "$actual" != "$expected" ]; then
+              echo "::error::$name checksum mismatch ($actual)"; exit 1
+            fi
+          }
+          download clang.mjs f649891db10422819537a6bf08cca9a1c83ddb7a
+          download clang.wasm 4976f125f12b4b0add8b8bb3878abc64498a8863
+          download lld.mjs e7900d608b4fa237da5041e3c91f2a28d0a5dbb7
+          download lld.wasm ea42b3d942ab63dc9d5ed0ed925ebc6169f27f52
+          download sysroot.tar 97bd03d63eaa60ec527c692c25515cad1389f989
+          download VERSION b00f105af92657e7bee4239fec2600eada93748d
+          ls -lh c-ide/toolchain/
+
+      - name: Commit offline compiler assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f c-ide/toolchain
+          if git diff --cached --quiet; then
+            echo "Toolchain files already installed."
+            exit 0
+          fi
+          git commit -m "Install verified local Clang WASM compiler assets"
+          git push origin HEAD:main
