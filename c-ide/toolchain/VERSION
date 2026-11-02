@@ -1,0 +1,4 @@
+llvm=llvmorg-18.1.2
+wasi-sdk=24
+emsdk=3.1.61
+built=2026-09-02T05:37Z
