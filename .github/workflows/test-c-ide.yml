@@ -1,0 +1,42 @@
+name: C言語IDE 動作検証
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/test-c-ide.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Playwright browser driver
+        run: npm install --no-save --no-package-lock playwright-core
+
+      - name: Start static file server and verify real C compilation
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME_BIN" ]; then
+            echo "Chrome not found: installing Playwright Chromium"
+            npx playwright install chromium
+            CHROME_BIN="$(node -e "const p=require('playwright-core');process.stdout.write(p.chromium.executablePath())")"
+          fi
+          echo "Chrome: $CHROME_BIN"
+          python3 -m http.server 8099 --bind 127.0.0.1 > /tmp/c-ide-server.log 2>&1 &
+          sleep 2
+          CHROME_BIN="$CHROME_BIN" node c-ide/smoke-test.mjs
