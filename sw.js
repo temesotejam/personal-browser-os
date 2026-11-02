@@ -1,12 +1,18 @@
-const CACHE_NAME = "personal-browser-os-v9";
-const RELEASE = "ja-20261102-9";
+const CACHE_NAME = "personal-browser-os-v10";
+const RELEASE = "ja-20261102-10";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css?release=" + RELEASE,
   "./app.js?release=" + RELEASE,
   "./manifest.webmanifest",
-  "./assets/icon.svg"
+  "./assets/icon.svg",
+  "./c-ide/index.html",
+  "./c-ide/style.css",
+  "./c-ide/app.js",
+  "./c-ide/compile.mjs",
+  "./c-ide/compiler-worker.mjs",
+  "./c-ide/runtime-worker.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -33,6 +39,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
+  // LLVMなどの大きなバイナリはSWキャッシュを圧迫しないよう通常のHTTPキャッシュに任せます。
+  if (requestUrl.pathname.includes("/c-ide/toolchain/")) return;
 
   event.respondWith(
     fetch(event.request, { cache: "no-cache" })
