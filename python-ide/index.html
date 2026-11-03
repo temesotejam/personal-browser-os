@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#141c30">
+<title>Python開発環境 — パーソナルOS</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main class="ide">
+<header class="toolbar">
+  <div class="brand"><span class="logo">Py</span><strong>Python開発環境</strong><small>CPython / Pyodide</small></div>
+  <div class="tools">
+    <select id="examples" aria-label="サンプル"><option value="hello">Hello World</option><option value="calculate">数値計算</option><option value="input">標準入力</option><option value="graph">グラフ描画</option></select>
+    <button id="newFile" type="button">新規</button>
+    <button id="openFile" type="button">開く</button>
+    <button id="saveFile" type="button">保存</button>
+    <input id="fileInput" type="file" accept=".py,.txt,text/plain" hidden>
+    <button class="primary" id="runBtn" type="button">▶ 実行</button>
+    <button class="danger" id="stopBtn" type="button" disabled>■ 停止</button>
+  </div>
+</header>
+<div class="statusbar"><span id="status" role="status">実行ボタンを押すとPythonを読み込みます。</span><span id="runtime">ブラウザー内で実行・サーバー不要</span></div>
+<section class="workspace">
+  <section class="pane editor">
+    <header class="pane-title"><span id="filename">main.py</span><span>UTF-8 / Python</span></header>
+    <div class="editor-body"><pre id="gutter" aria-hidden="true">1</pre><textarea id="code" aria-label="Pythonコード" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off"></textarea></div>
+    <footer class="editor-footer">Ctrl+Enter：実行　Ctrl+S：保存　Tab：インデント</footer>
+  </section>
+  <div class="right">
+    <section class="pane stdin-pane">
+      <header class="pane-title"><span>標準入力</span><span>input()</span></header>
+      <textarea id="stdin" placeholder="input()で読み込む内容を、実行前に1行ずつ入力" aria-label="標準入力データ"></textarea>
+    </section>
+    <section class="pane console-pane">
+      <header class="pane-title"><span>コンソール</span><button id="clearConsole" type="button">消去</button></header>
+      <pre id="console" aria-live="polite"></pre>
+    </section>
+    <section class="pane graph-pane">
+      <header class="pane-title"><span>グラフ・描画</span><button id="saveGraph" type="button">PNG保存</button></header>
+      <div class="canvas-wrap"><canvas id="canvas" width="780" height="420" aria-label="Pythonで描画したグラフ"></canvas></div>
+    </section>
+  </div>
+</section>
+<footer class="footnote"><span>初回のみPythonランタイムをダウンロードします。コードはローカルで実行されます。</span><span>Python 3.14 / Pyodide</span></footer>
+</main>
+<script src="./app.js" defer></script>
+</body>
+</html>
