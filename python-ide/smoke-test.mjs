@@ -9,14 +9,24 @@ const errors=[];
 page.on("pageerror",e=>errors.push(e.message));
 page.on("console",m=>{if(m.type()==="error") console.log("Browser console:",m.text());});
 page.on("dialog",d=>d.accept());
+page.on("response",r=>{if(r.status()>=400)console.log("HTTP",r.status(),r.url());});
+page.on("requestfailed",r=>console.log("Request failed",r.url(),r.failure()?.errorText));
 async function testProgram(name,outputText) {
   await page.locator("#runBtn").click();
-  await page.waitForFunction((expected)=>{
-    const status=document.querySelector("#status").textContent;
-    const consoleText=document.querySelector("#console").textContent;
-    return consoleText.includes(expected) && status.includes("完了");
-  },outputText,{timeout:95000});
-  console.log(name+" passed: "+(await page.locator("#console").textContent()).slice(-200));
+  try {
+    await page.waitForFunction((expected)=>{
+      const status=document.querySelector("#status").textContent;
+      const consoleText=document.querySelector("#console").textContent;
+      return (consoleText.includes(expected) && status.includes("完了")) || status.includes("実行エラー");
+    },outputText,{timeout:60000});
+  } catch(error) {
+    console.log("Status on timeout:",await page.locator("#status").textContent());
+    console.log("Output on timeout:",await page.locator("#console").textContent());
+    throw error;
+  }
+  const result=await page.locator("#console").textContent();
+  console.log(name+" state:",await page.locator("#status").textContent(),"output:",result.slice(-900));
+  if(!result.includes(outputText)) throw Error(name+" failed: "+result);
 }
 try {
   await page.goto("http://127.0.0.1:8099/python-ide/",{waitUntil:"domcontentloaded"});
