@@ -1,5 +1,5 @@
-const CACHE_NAME = "personal-browser-os-v10";
-const RELEASE = "ja-20261102-10";
+const CACHE_NAME = "personal-browser-os-v11";
+const RELEASE = "ja-20261103-11";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -12,7 +12,11 @@ const APP_SHELL = [
   "./c-ide/app.js",
   "./c-ide/compile.mjs",
   "./c-ide/compiler-worker.mjs",
-  "./c-ide/runtime-worker.js"
+  "./c-ide/runtime-worker.js",
+  "./python-ide/index.html",
+  "./python-ide/style.css",
+  "./python-ide/app.js",
+  "./python-ide/worker.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -40,7 +44,7 @@ self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
   // LLVMなどの大きなバイナリはSWキャッシュを圧迫しないよう通常のHTTPキャッシュに任せます。
-  if (requestUrl.pathname.includes("/c-ide/toolchain/")) return;
+  if (requestUrl.pathname.includes("/c-ide/toolchain/") || requestUrl.pathname.includes("/python-ide/vendor/")) return;
 
   event.respondWith(
     fetch(event.request, { cache: "no-cache" })
