@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/test-python-ide.yml"
+      - "python-ide/smoke-test.mjs"
+      - "python-ide/worker.js"
+      - "python-ide/app.js"
 
 permissions:
   contents: read
