@@ -51,7 +51,7 @@ async function ensureRuntime() {
   if (!initializing) {
     initializing = (async () => {
       emit("status", {message:"Python実行環境を読み込んでいます（初回はダウンロードが必要です）…"});
-      importScripts(new URL("pyodide.js", PYODIDE_BASE).href);
+      const {loadPyodide} = await import(new URL("pyodide.mjs", PYODIDE_BASE).href);
       const engine = await loadPyodide({indexURL:PYODIDE_BASE});
       engine.runPython(graphHelpers);
       python = engine;
