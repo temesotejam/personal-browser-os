@@ -1,0 +1,35 @@
+name: Python IDE 動作検証
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/test-python-ide.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock playwright-core
+      - name: Run real Python in Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME_BIN" ]; then
+            npx playwright install chromium
+            CHROME_BIN="$(node -e "process.stdout.write(require('playwright-core').chromium.executablePath())")"
+          fi
+          python3 -m http.server 8099 --bind 127.0.0.1 > /tmp/python-ide-http.log 2>&1 &
+          sleep 2
+          CHROME_BIN="$CHROME_BIN" node python-ide/smoke-test.mjs
