@@ -29,7 +29,7 @@ jobs:
           set -euo pipefail
           mkdir -p python-ide/vendor
           BASE="https://cdn.jsdelivr.net/pyodide/v314.0.7/full"
-          for file in pyodide.js pyodide.asm.mjs pyodide.asm.wasm python_stdlib.zip pyodide-lock.json; do
+          for file in pyodide.mjs pyodide.js pyodide.asm.mjs pyodide.asm.wasm python_stdlib.zip pyodide-lock.json; do
             echo "Downloading $file"
             curl --fail --location --retry 5 --retry-delay 4 --connect-timeout 20 --max-time 300 "$BASE/$file" -o "python-ide/vendor/$file"
             test -s "python-ide/vendor/$file"
