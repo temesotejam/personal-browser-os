@@ -20,6 +20,7 @@
     { id: "home", name: "ホーム", icon: "⌂", description: "あなた専用のデスクトップ概要", width: 650, height: 460, desktop: true, dock: true },
     { id: "browser", name: "ブラウザー", icon: "🌐", description: "Webサイトを閲覧・検索", width: 900, height: 620, desktop: true, dock: true },
     { id: "c-ide", name: "C言語開発", icon: "⌨", description: "C言語のプログラムを作成・コンパイル・実行", width: 1060, height: 700, desktop: true, dock: true },
+    { id: "python-ide", name: "Python開発", icon: "🐍", description: "Pythonコードの作成・実行・グラフ描画", width: 1060, height: 700, desktop: true, dock: true },
     { id: "calculator", name: "電卓", icon: "∑", description: "日常使いのシンプルな電卓", width: 360, height: 465, desktop: true, dock: true },
     { id: "notes", name: "メモ帳", icon: "▤", description: "思いついたことを書き留める場所", width: 520, height: 440, desktop: true, dock: true },
     { id: "viewer", name: "画像ビューア", icon: "▧", description: "端末内の画像を表示", width: 600, height: 430, desktop: true, dock: true },
@@ -246,6 +247,17 @@
   }
 
   function mountApp(id, content) {
+    if (id === "python-ide") {
+      content.classList.add("no-padding");
+      const frame = document.createElement("iframe");
+      frame.src = "./python-ide/index.html";
+      frame.title = "Python開発環境";
+      frame.loading = "eager";
+      frame.style.background = "#111827";
+      content.append(frame);
+      return;
+    }
+
     if (id === "c-ide") {
       content.classList.add("no-padding");
       const frame = document.createElement("iframe");
@@ -272,7 +284,7 @@
     }
 
     if (id === "home") {
-      content.innerHTML = '<div class="app-hero"><p class="eyebrow">あなたのデスクトップへようこそ</p><h2>自分だけのデスクトップ。</h2><p>これはブラウザーだけで動く、あなただけの作業空間です。アプリを起動し、ウィンドウを並べて、自分好みの環境に整えていきましょう。</p></div><div class="app-cards"><article class="app-card"><span class="card-icon">▤</span><h3>思いつきを書き留める</h3><p>ブラウザー内にメモを残せます。入力した内容は、この端末に自動保存されます。</p><button class="small-button" data-open="notes" style="margin-top:12px">メモ帳を開く ↗</button></article><article class="app-card"><span class="card-icon">∑</span><h3>計算する</h3><p>日常の計算やちょっとした確認に使えるシンプルな電卓です。</p><button class="small-button" data-open="calculator" style="margin-top:12px">電卓を開く ↗</button></article><article class="app-card"><span class="card-icon">▧</span><h3>画像を見る</h3><p>画像をサーバーに送信せず、この端末から読み込んで表示できます。</p><button class="small-button" data-open="viewer" style="margin-top:12px">画像ビューアを開く ↗</button></article><article class="app-card"><span class="card-icon">＋</span><h3>自分好みにカスタマイズ</h3><p>Webサイトや自作のWebアプリをランチャーに追加できます。</p><button class="small-button" data-open="app-center" style="margin-top:12px">アプリを追加 ↗</button></article><article class="app-card"><span class="card-icon">⌨</span><h3>C言語プログラミング</h3><p>このOS内でC言語をコンパイルして実行できます。計算や図形の描画にも対応。</p><button class="small-button" data-open="c-ide" style="margin-top:12px">C言語開発を開く ↗</button></article></div>';
+      content.innerHTML = '<div class="app-hero"><p class="eyebrow">あなたのデスクトップへようこそ</p><h2>自分だけのデスクトップ。</h2><p>これはブラウザーだけで動く、あなただけの作業空間です。アプリを起動し、ウィンドウを並べて、自分好みの環境に整えていきましょう。</p></div><div class="app-cards"><article class="app-card"><span class="card-icon">▤</span><h3>思いつきを書き留める</h3><p>ブラウザー内にメモを残せます。入力した内容は、この端末に自動保存されます。</p><button class="small-button" data-open="notes" style="margin-top:12px">メモ帳を開く ↗</button></article><article class="app-card"><span class="card-icon">∑</span><h3>計算する</h3><p>日常の計算やちょっとした確認に使えるシンプルな電卓です。</p><button class="small-button" data-open="calculator" style="margin-top:12px">電卓を開く ↗</button></article><article class="app-card"><span class="card-icon">▧</span><h3>画像を見る</h3><p>画像をサーバーに送信せず、この端末から読み込んで表示できます。</p><button class="small-button" data-open="viewer" style="margin-top:12px">画像ビューアを開く ↗</button></article><article class="app-card"><span class="card-icon">＋</span><h3>自分好みにカスタマイズ</h3><p>Webサイトや自作のWebアプリをランチャーに追加できます。</p><button class="small-button" data-open="app-center" style="margin-top:12px">アプリを追加 ↗</button></article><article class="app-card"><span class="card-icon">🐍</span><h3>Pythonプログラミング</h3><p>ブラウザー内でPythonをそのまま実行。計算やグラフ描画にも対応します。</p><button class="small-button" data-open="python-ide" style="margin-top:12px">Python開発を開く ↗</button></article><article class="app-card"><span class="card-icon">⌨</span><h3>C言語プログラミング</h3><p>このOS内でC言語をコンパイルして実行できます。計算や図形の描画にも対応。</p><button class="small-button" data-open="c-ide" style="margin-top:12px">C言語開発を開く ↗</button></article></div>';
       wireOpenButtons(content);
       return;
     }
