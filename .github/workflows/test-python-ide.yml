@@ -9,6 +9,7 @@ on:
       - "python-ide/smoke-test.mjs"
       - "python-ide/worker.js"
       - "python-ide/app.js"
+      - "python-ide/vendor/**"
 
 permissions:
   contents: read
