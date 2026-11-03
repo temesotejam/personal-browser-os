@@ -1,0 +1,62 @@
+name: Pythonランタイムのローカル配置
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/install-python-runtime.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: install-python-runtime
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Install pinned Pyodide 314.0.7 runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p python-ide/vendor
+          BASE="https://cdn.jsdelivr.net/pyodide/v314.0.7/full"
+          for file in pyodide.js pyodide.asm.mjs pyodide.asm.wasm python_stdlib.zip pyodide-lock.json; do
+            echo "Downloading $file"
+            curl --fail --location --retry 5 --retry-delay 4 --connect-timeout 20 --max-time 300 "$BASE/$file" -o "python-ide/vendor/$file"
+            test -s "python-ide/vendor/$file"
+          done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("python-ide/vendor")
+          lock=json.loads((p/"pyodide-lock.json").read_text())
+          print("Package lock read successfully, keys:", ", ".join(lock))
+          print("Pyodide runtime files:")
+          for f in p.iterdir():
+              print(f.name, f.stat().st_size, "bytes")
+          assert (p/"pyodide.asm.wasm").stat().st_size > 2_000_000
+          assert (p/"python_stdlib.zip").stat().st_size > 500_000
+          PY
+
+      - name: Commit runtime files to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f python-ide/vendor
+          if git diff --cached --quiet; then
+            echo "Pyodide already installed"
+            exit 0
+          fi
+          git commit -m "Install locally hosted Pyodide Python runtime 314.0.7"
+          git push origin HEAD:main
