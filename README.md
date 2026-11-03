@@ -9,6 +9,7 @@
 - 電卓：四則演算と括弧に対応
 - ブラウザー：OS内で閲覧・検索。表示できないサイトは確認後に別タブで開けます
 - **C言語開発環境**：C11のコード編集・コンパイル・実行・標準入力・出力表示、波形・図形描画、Cファイルの読み込み・保存
+- **Python開発環境**：CPython 3.14のコード実行、標準入出力、数値計算、グラフ描画、`.py` の読込・保存
 - メモ帳：入力内容をブラウザー内に自動保存
 - 画像ビューア：端末内の画像を読み込んで表示
 - 設定：テーマと壁紙の切り替え
@@ -75,6 +76,35 @@ puts("@PLOT RECT 280 50 100 75 #22c55e");
 
 コンパイラ本体は GitHub Actions の `install-c-toolchain.yml` で、[Derle](https://github.com/senolgulgonul/derle) が公開するLLVM・WASIビルドを検証してから `c-ide/toolchain/` に配置しています。実行時にはこのリポジトリから配信されるファイルのみ使用します。ClangはApache-2.0 WITH LLVM-exception、wasi-libcはApache-2.0/MITです。OSや実機のシステムコール、Windows用プログラム、ネイティブGUIは対象外です。
 
+## Python開発環境の使い方
+
+OSの「🐍 Python開発」を起動します。または `python-ide/` を直接開いても利用できます。
+
+1. 「Hello World」「数値計算」「標準入力」「グラフ描画」からサンプルを選択します。
+2. 「▶ 実行」を押します。Ctrl+Enterでも実行できます。初回はPython実行環境の読み込みが必要です。
+3. `input()` は実行前に「標準入力」欄に入力してください。
+4. グラフは標準ライブラリの `math` と、OS専用の `os_plot` を組み合わせて描画できます。
+5. `.py` ファイルの読込・保存、ブラウザー内の自動保存、PNG画像保存に対応しています。
+
+グラフ描画の例：
+
+```python
+import math
+from os_plot import plot, title, grid
+
+x = [i * 0.1 for i in range(63)]
+y = [math.sin(v) for v in x]
+plot(x, y, "#7367ff")
+title("sin(x)")
+grid(True)
+```
+
+`os_plot` は独自の軽量グラフ機能で、`plot`, `scatter`, `bar`, `title`, `xlabel`, `ylabel`, `grid`, `clear` を提供します。標準のmatplotlibとは異なります。
+
+Pythonランタイムは [Pyodide 314.0.7](https://pyodide.org/en/stable/)（Python 3.14）を利用します。`.github/workflows/install-python-runtime.yml` が固定バージョンのランタイムを取得して `python-ide/vendor/` に配置します。**コード実行のための外部コンパイルサーバーは不要**で、プログラムはWeb Worker内で実行されます。無限ループ対策として実行開始から12秒で停止させます。初回はランタイムのダウンロードが必要ですが、その後はブラウザーのHTTPキャッシュを利用します。
+
+**制限：** ブラウザー内のPythonなので、Windowsの実行ファイルや任意のPC上のファイルを直接操作することはできません。標準ライブラリの多くは利用できますが、一部のモジュール、OS固有機能、外部の拡張パッケージは対応しません。
+
 ## データとプライバシー
 
 - メモ、外観設定、追加したアプリ情報はlocalStorageに保存されます。
@@ -91,6 +121,7 @@ puts("@PLOT RECT 280 50 100 75 #22c55e");
 - sw.js — アプリ本体のキャッシュ
 - assets/icon.svg — アプリアイコン
 - c-ide/ — C言語開発環境（コードエディタ、WASI実行環境、コンパイラ）
+- python-ide/ — Python開発環境（Pyodide、エディタ、グラフ描画、Web Worker）
 - .github/workflows/install-c-toolchain.yml — ビルド済みコンパイラの検証・配置
 
 ## 今後追加したい機能
