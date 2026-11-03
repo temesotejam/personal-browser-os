@@ -159,7 +159,7 @@
   }
   function ensureWorker() {
     if(worker)return worker;
-    worker=new Worker("./worker.js");
+    worker=new Worker("./worker.js",{type:"module"});
     worker.onmessage=e=>onWorkerMessage(e.data||{});
     worker.onerror=e=>{discardWorker();finish("Python実行環境の読み込みに失敗しました: "+e.message);};
     return worker;
